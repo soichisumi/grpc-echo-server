@@ -12,3 +12,7 @@ go-run:
 
 run-msgencoder:
 	go run ./scripts/msg-encoder/
+
+generate-certs:
+	openssl req -x509 -nodes -newkey rsa:2048 -days 365 -keyout privkey.pem -out cert.pem -subj "/CN=127.0.0.1"
+	openssl  x509 -in cert.pem -out root.crt
