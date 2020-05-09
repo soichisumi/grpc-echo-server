@@ -9,8 +9,8 @@ import (
 	grpctesting "github.com/soichisumi/grpc-echo-server/pkg/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 	"net"
 )
 
@@ -26,14 +26,16 @@ func main(){
 	if err != nil {
 		logger.Fatal(err.Error(), zap.Error(err))
 	}
-	creds, err := credentials.NewServerTLSFromFile("./certs/cert.pem", "./certs/privkey.pem")
-	if err != nil {
-		logger.Fatal(err.Error(), zap.Error(err))
-	}
+	//creds, err := credentials.NewServerTLSFromFile("./certs/cert.pem", "./certs/privkey.pem")
+	//if err != nil {
+	//	logger.Fatal(err.Error(), zap.Error(err))
+	//}
+	//server := grpc.NewServer(grpc.Creds(creds))
 
-	server := grpc.NewServer(grpc.Creds(creds))
+	server := grpc.NewServer()
 	grpctesting.RegisterEchoServiceServer(server, echo.NewEchoServer())
 	grpc_health_v1.RegisterHealthServer(server, health.NewHealthServer())
+	reflection.Register(server)
 
 	logger.Info("", zap.Int("port", *port))
 	if err := server.Serve(lis); err != nil {
