@@ -4,7 +4,7 @@ ENV GO111MODULE on
 
 COPY . /go/src/tmp
 WORKDIR /go/src/tmp
-RUN make go-build-amd64
+RUN make go-build
 
 FROM alpine:latest
 RUN GRPC_HEALTH_PROBE_VERSION=v0.3.2 && \
@@ -13,5 +13,4 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.2 && \
 RUN apk --no-cache add ca-certificates \
     && apk add --no-cache libc6-compat
 COPY --from=build /go/src/tmp/exe .
-COPY --from=build /go/src/tmp/templates ./templates/
 ENTRYPOINT ["./exe"]
