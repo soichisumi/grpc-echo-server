@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/soichisumi/go-util/logger"
@@ -10,6 +11,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"net"
 )
@@ -32,7 +34,19 @@ func main(){
 	//}
 	//server := grpc.NewServer(grpc.Creds(creds))
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error){
+				md, ok := metadata.FromIncomingContext(ctx)
+				if !ok {
+					logger.Debug("request metadata is empty")
+				} else {
+					logger.Info("request metadata", zap.Any("metadata", md))
+				}
+				return handler(ctx, req)
+			},
+		),
+	)
 	grpctesting.RegisterEchoServiceServer(server, echo.NewEchoServer())
 	grpc_health_v1.RegisterHealthServer(server, health.NewHealthServer())
 	reflection.Register(server)

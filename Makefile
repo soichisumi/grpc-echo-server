@@ -1,4 +1,4 @@
-TAG=v0.1.3
+TAG=v0.2.0
 
 .PHONY: vendor
 
